@@ -107,7 +107,6 @@ int deSerialize(Trie*& root, FILE* fword, FILE* fkey, char word, int k)
 			return 1;
 		deSerialize(root->children[val], fword, fkey, val, k);
 	}
-	// Finally return 0 for successful finish
 	return 0;
 }
 
@@ -167,7 +166,8 @@ void header() {
 	cout << "Options: " << endl;
 	cout << "_ 1. To search." << endl;
 	cout << "_ 2. To add new word." << endl;
-	cout << "_ 3. To quit." << endl;
+	cout << "_ 3. To Edit." << endl;
+	cout << "_ 0. To quit." << endl;
 }
 
 int find(Trie *root) {
@@ -209,6 +209,48 @@ int add(Trie* root) {
 	return option;
 }
 
+int updateMean(Trie* root, const string& word) {
+	//TODO: find meanId of the word
+	string meaning;
+	// If root is null i.e. the dictionary is empty
+	if (root == NULL)
+		return -1;
+	Trie* temp = root;
+	// Search a word in the Trie
+	for (auto c : word) {
+		temp = temp->children[c];
+		if (temp == NULL)
+			return -1;
+	}
+	// If it is the end of a valid word stored
+	// before then return its meaning
+	if (temp->id != -1)
+	{
+		cout << "__Enter mean: ";
+		getline(cin, meaning);
+		const char* mean = meaning.c_str();
+		temp->id = WriteMeaning(mean);
+		Serialize(root);
+		return temp->id;
+	}
+	return -1;
+}
+
+int edit(Trie* root) {
+	string word;
+	string meaning;
+	int option;
+	cin.ignore();
+	cout << "__Enter word to edit mean: ";
+	getline(cin, word);
+	int check = updateMean(root, word);
+	if (check == -1) cout << "EDIT FAILT: don't exist" << endl;
+	else cout << "==> finished <==" << endl;
+	cout << "__Enter your options: ";
+	cin >> option;
+	return option;
+}
+
 void Print(Trie* root) {
 	if (root == nullptr) {
 		return;
@@ -223,6 +265,15 @@ void Print(Trie* root) {
 
 int main() {
 	Trie* root = NULL;
+	/*Insert(root, "language", "language meaning ");
+	Insert(root, "computer", "computer meaning ");
+	Insert(root, "map", "map meaning ");
+	Insert(root, "science", "science meaning ");
+	Insert(root, "look", "look meaning ");
+	Insert(root, "come", "come meaning ");
+	Insert(root, "match", "match meaning ");
+	Insert(root, "screen", "screen meaning ");
+	Serialize(root);*/
 	loadTrie(root);
 	header();
 	int option;
@@ -235,6 +286,7 @@ int main() {
 		case 0: break;
 		case 1: option = find(root); break;
 		case 2: option = add(root); break;
+		case 3: option = edit(root);break;
 		}
 	} while (option != 0);
 	return 0;
